@@ -32,6 +32,13 @@ else()
     endif()
 endif()
 
+# remove the lib prefix on win32 mingw
+if (WIN32)
+    set(CMAKE_STATIC_LIBRARY_PREFIX "")
+    set(CMAKE_SHARED_LIBRARY_PREFIX "")
+    set(CMAKE_SHARED_MODULE_PREFIX  "")
+endif()
+
 option(BUILD_SHARED_LIBS "ggml: build shared libraries" ${BUILD_SHARED_LIBS_DEFAULT})
 option(GGML_BACKEND_DL   "ggml: build backends as dynamic libraries (requires BUILD_SHARED_LIBS)" OFF)
 
@@ -172,6 +179,11 @@ set   (GGML_SYCL_TARGET "INTEL" CACHE STRING
 set   (GGML_SYCL_DEVICE_ARCH "" CACHE STRING
                                             "ggml: sycl device architecture")
 
+option(GGML_OPENCL                          "ggml: use OpenCL"                                OFF)
+option(GGML_OPENCL_PROFILING                "ggml: use OpenCL profiling (increases overhead)" OFF)
+option(GGML_OPENCL_EMBED_KERNELS            "ggml: embed kernels"                             ON)
+option(GGML_OPENCL_USE_ADRENO_KERNELS       "ggml: use optimized kernels for Adreno"          ON)
+
 # extra artifacts
 option(GGML_BUILD_TESTS    "ggml: build tests"    ${GGML_STANDALONE})
 option(GGML_BUILD_EXAMPLES "ggml: build examples" ${GGML_STANDALONE})
@@ -183,7 +195,11 @@ option(GGML_BUILD_EXAMPLES "ggml: build examples" ${GGML_STANDALONE})
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED true)
 
-set(CMAKE_CXX_STANDARD 17)
+if (GGML_SYCL)
+    set(CMAKE_CXX_STANDARD 17)
+else()
+    set(CMAKE_CXX_STANDARD 14)
+endif()
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
